@@ -84,7 +84,7 @@ Browser Wasm is available through `--target wasm-browser` and exposes an async `
 
 ## FFI ownership proposal
 
-The [cross-family FFI ownership contract](https://github.com/tschk/equilibrium/blob/main/docs/FFI-OWNERSHIP-PROPOSAL.md) is a proposal, not a claim that eqts conforms or interoperates with other projects. Steps toward an opt-in adapter include:
+The [cross-family FFI ownership contract](https://github.com/softwarecorporation/equilibrium/blob/main/docs/FFI-OWNERSHIP-PROPOSAL.md) is a proposal, not a claim that eqts conforms or interoperates with other projects. Steps toward an opt-in adapter include:
 
 - Document the `eqts_buffer_free_v1` release obligation and output ownership on every status, and test cleanup on success and error paths.
 - Document the scriptc bridge's call-scoped `emit` buffer lifetime and test that consumers copy any data retained after the callback returns.
@@ -98,6 +98,6 @@ eqts 0.2 requires Rust 1.88 or newer. The generated declarations are verified wi
 - [Crate documentation](https://docs.rs/eqts)
 - [eqts on crates.io](https://crates.io/crates/eqts)
 - [cargo-eqts on crates.io](https://crates.io/crates/cargo-eqts)
-- [GitHub releases](https://github.com/tschk/eqts/releases)
+- [GitHub releases](https://github.com/softwarecorporation/eqts/releases)
 
 See [PLAN.md](PLAN.md) for the complete transport roadmap and acceptance criteria.
