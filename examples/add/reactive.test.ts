@@ -13,6 +13,11 @@ type Greeter = {
 
 function reactiveSuite(name: string, backend: Backend) {
   describe(name, () => {
+    test("async arguments round-trip non-finite floats", async () => {
+      const values = [Number.NaN, Infinity, -Infinity, -1.5];
+      expect(await backend.echoFloatsAsync(values)).toEqual(values);
+    });
+
     test("handle disposal is idempotent and observable", async () => {
       const handle = backend.words();
       expect(handle.disposed).toBeFalse();
@@ -32,6 +37,35 @@ function reactiveSuite(name: string, backend: Backend) {
       controller.abort(reason);
       expect(pending).rejects.toBe(reason);
     });
+
+    test("AbortSignal stops the running Rust future", async () => {
+      const until = async (condition: () => boolean) => {
+        for (let attempt = 0; attempt < 200 && !condition(); attempt++) {
+          await Bun.sleep(5);
+        }
+        return condition();
+      };
+      const before = backend.pendingTasks();
+      const controller = new AbortController();
+      const pending = backend.pendingTask({ signal: controller.signal });
+      expect(await until(() => backend.pendingTasks() === before + 1)).toBe(
+        true,
+      );
+      controller.abort(new DOMException("stop", "AbortError"));
+      await expect(pending).rejects.toBeInstanceOf(DOMException);
+      expect(await until(() => backend.pendingTasks() === before)).toBe(true);
+    });
+
+    // Rust on wasm32 aborts on panic, so only native backends can settle.
+    test.skipIf(name.includes("wasm"))(
+      "a panicking future rejects with the panic message",
+      async () => {
+        await expect(backend.panickingTask()).rejects.toMatchObject({
+          code: "RUST_PANIC",
+          message: "task boom",
+        });
+      },
+    );
 
     test("object methods preserve mutable state and cancel async work", async () => {
       const counter = backend.counter(40);
@@ -86,6 +120,8 @@ reactiveSuite("bun ffi reactive", bunFfi);
 
 test("browser Wasm reactive surface initializes", async () => {
   await browserWasm.initialize();
+  const values = [Number.NaN, Infinity, -Infinity, -1.5];
+  expect(await browserWasm.echoFloatsAsync(values)).toEqual(values);
   const words = browserWasm.words();
   expect(await words.next()).toEqual({ value: "one", done: false });
   expect(await words.return?.()).toEqual({ value: undefined, done: true });
