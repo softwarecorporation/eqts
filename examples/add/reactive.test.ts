@@ -13,6 +13,11 @@ type Greeter = {
 
 function reactiveSuite(name: string, backend: Backend) {
   describe(name, () => {
+    test("async arguments round-trip non-finite floats", async () => {
+      const values = [Number.NaN, Infinity, -Infinity, -1.5];
+      expect(await backend.echoFloatsAsync(values)).toEqual(values);
+    });
+
     test("handle disposal is idempotent and observable", async () => {
       const handle = backend.words();
       expect(handle.disposed).toBeFalse();
@@ -115,6 +120,8 @@ reactiveSuite("bun ffi reactive", bunFfi);
 
 test("browser Wasm reactive surface initializes", async () => {
   await browserWasm.initialize();
+  const values = [Number.NaN, Infinity, -Infinity, -1.5];
+  expect(await browserWasm.echoFloatsAsync(values)).toEqual(values);
   const words = browserWasm.words();
   expect(await words.next()).toEqual({ value: "one", done: false });
   expect(await words.return?.()).toEqual({ value: undefined, done: true });

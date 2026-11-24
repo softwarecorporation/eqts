@@ -205,6 +205,11 @@ pub fn echo_floats(values: Vec<f64>) -> Vec<f64> {
     values
 }
 
+#[eqts::async_export(Vec<f64>)]
+pub async fn echo_floats_async(values: Vec<f64>) -> Vec<f64> {
+    values
+}
+
 #[eqts::callback(String)]
 pub fn callback_events(callback: eqts::Callback<String>) -> impl eqts::ReactiveResource {
     callback

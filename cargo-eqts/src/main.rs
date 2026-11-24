@@ -590,7 +590,12 @@ fn render_reactive_function(output: &mut String, function: &Function) {
         .iter()
         .map(|parameter| typescript_name(&parameter.name))
         .collect::<Vec<_>>();
-    let arguments = parameters.join(", ");
+    let arguments = function
+        .parameters
+        .iter()
+        .map(|parameter| wire_encode(&typescript_name(&parameter.name), &parameter.ty))
+        .collect::<Vec<_>>()
+        .join(", ");
     let value = match &function.kind {
         ExportKind::Object { value }
         | ExportKind::Trait { value }
