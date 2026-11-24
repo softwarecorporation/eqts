@@ -179,13 +179,14 @@ fn reactive_annotations_emit_handles_and_kinds() {
         eqts::invoke_handle_async(object_handle, "size", vec![]).expect("async method starts");
     assert_ne!(future, 0);
     let mut ready = None;
-    for _ in 0..100 {
+    let deadline = Instant::now() + Duration::from_secs(2);
+    while Instant::now() < deadline {
         match eqts::poll_reactive(future).expect("future handle exists") {
             (eqts::ABI_REACTIVE_READY, value) => {
                 ready = value;
                 break;
             }
-            (eqts::ABI_REACTIVE_PENDING, _) => std::thread::yield_now(),
+            (eqts::ABI_REACTIVE_PENDING, _) => std::thread::sleep(Duration::from_millis(1)),
             (status, _) => panic!("unexpected async status {status}"),
         }
     }
