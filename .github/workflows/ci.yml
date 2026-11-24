@@ -100,6 +100,8 @@ jobs:
         with:
           toolchain: 1.88.0
       - uses: Swatinem/rust-cache@v2
+      - name: Verify scriptc dependency lock before adapter generation
+        run: cargo metadata --locked --manifest-path examples/scriptc/Cargo.toml --format-version 1 > /dev/null
       - uses: actions/setup-node@v4
         with:
           node-version: 24
